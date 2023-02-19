@@ -53,8 +53,10 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    role          String? // New Column
     accounts      Account[]
     sessions      Session[]
+    roles         Role[]
 }
 
 model VerificationToken {
@@ -64,3 +66,21 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model Role {
+    id     String @id @default(cuid())
+    name   String
+    users  User[]
+    secret String @default("role secret")
+    // userId String?
+    // user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// model RolesOnUsers {
+//     user   User   @relation(fields: [userId], references: [id])
+//     userId String // relation scalar field (used in the `@relation` attribute above)
+//     role   Role   @relation(fields: [roleId], references: [id])
+//     roleId String // relation scalar field (used in the `@relation` attribute above)
+
+//     @@id([userId, roleId])
+// }
