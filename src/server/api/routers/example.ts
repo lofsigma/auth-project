@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
+import crypto from 'crypto';
+
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
@@ -19,7 +21,11 @@ export const exampleRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
   getAllUsers: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany();
+    return ctx.prisma.user.findMany({
+      include: {
+        roles: true
+      }
+    });
   }),
   getAllRoles: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.role.findMany({
@@ -31,7 +37,48 @@ export const exampleRouter = createTRPCRouter({
   isAdmin: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
-      return;
+      return ctx.prisma.user.findFirst({
+        where: {
+          id: input.id,
+          roles: {
+            some: {
+              name: 'admin'
+            }
+          }
+        }
+      })
+    }),
+  createNewUser: protectedProcedure
+    .input(z.object({
+      firstName: z.string(),
+      lastName: z.string(),
+      birthDate: z.date(),
+      newHire: z.boolean(),
+      managerId: z.string(),
+      personnelArea: z.string(),
+      department: z.string(),
+      costCenter: z.string(),
+      roles: z.string()
+    }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.create({
+        data: {
+          firstName: input.firstName,
+          lastName: input.lastName,
+          birthDate: input.birthDate,
+          userName: input.firstName + input.lastName,
+          password: crypto.randomBytes(8).toString('hex'),
+          newHire: input.newHire,
+          ManagerId: input.managerId,
+          personnelArea: input.personnelArea,
+          department: input.department,
+          costCenter: input.costCenter,
+          roles: {
+            connect: input.roles.split(',').map(role => ({ name: role }))
+          }
+
+        }
+      })
     }),
   getUser: protectedProcedure
     .input(z.object({ id: z.string() }))

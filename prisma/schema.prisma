@@ -49,11 +49,20 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    role          String? // New Column
+    // email         String?   @unique
+    // emailVerified DateTime?
+    // image         String?
+    // role          String? // New Column
+    userName      String
+    firstName     String
+    lastName      String
+    birthDate     DateTime
+    newHire       Boolean
+    ManagerId     String
+    personnelArea String
+    department    String
+    costCenter    String
+    password      String
     accounts      Account[]
     sessions      Session[]
     roles         Role[]
@@ -68,8 +77,7 @@ model VerificationToken {
 }
 
 model Role {
-    id     String @id @default(cuid())
-    name   String
+    name   String @id
     users  User[]
     secret String @default("role secret")
     // userId String?
