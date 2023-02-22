@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
@@ -23,8 +23,8 @@ export const exampleRouter = createTRPCRouter({
   getAllUsers: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findMany({
       include: {
-        roles: true
-      }
+        roles: true,
+      },
     });
   }),
   getAllRoles: protectedProcedure.query(({ ctx }) => {
@@ -42,24 +42,26 @@ export const exampleRouter = createTRPCRouter({
           id: input.id,
           roles: {
             some: {
-              name: 'admin'
-            }
-          }
-        }
-      })
+              name: "admin",
+            },
+          },
+        },
+      });
     }),
   createNewUser: protectedProcedure
-    .input(z.object({
-      firstName: z.string(),
-      lastName: z.string(),
-      birthDate: z.date(),
-      newHire: z.boolean(),
-      managerId: z.string(),
-      personnelArea: z.string(),
-      department: z.string(),
-      costCenter: z.string(),
-      roles: z.string()
-    }))
+    .input(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        birthDate: z.date(),
+        newHire: z.boolean(),
+        managerId: z.string(),
+        personnelArea: z.string(),
+        department: z.string(),
+        costCenter: z.string(),
+        roles: z.string(),
+      })
+    )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.user.create({
         data: {
@@ -67,18 +69,45 @@ export const exampleRouter = createTRPCRouter({
           lastName: input.lastName,
           birthDate: input.birthDate,
           userName: input.firstName + input.lastName,
-          password: crypto.randomBytes(8).toString('hex'),
+          password: crypto.randomBytes(8).toString("hex"),
           newHire: input.newHire,
           ManagerId: input.managerId,
           personnelArea: input.personnelArea,
           department: input.department,
           costCenter: input.costCenter,
           roles: {
-            connect: input.roles.split(',').map(role => ({ name: role }))
-          }
-
-        }
-      })
+            connect: input.roles.split(",").map((role) => ({ name: role })),
+          },
+        },
+      });
+    }),
+  addRole: protectedProcedure
+    .input(z.object({ id: z.string(), role: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          roles: {
+            connect: [{ name: input.role }],
+          },
+        },
+      });
+    }),
+  removeRole: protectedProcedure
+    .input(z.object({ id: z.string(), role: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          roles: {
+            disconnect: [{ name: input.role }],
+          },
+        },
+      });
     }),
   getUser: protectedProcedure
     .input(z.object({ id: z.string() }))
