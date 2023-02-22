@@ -97,11 +97,20 @@ export const authOptions: NextAuthOptions = {
 
         //   // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         // }
-        return await prisma.user.findFirst({
+
+        if (!credentials) return null;
+
+        const user = await prisma.user.findFirst({
           where: {
-            userName: credentials?.username,
+            userName: credentials.username,
           },
         });
+
+        if (!user) return null;
+
+        return (await argon2.verify(user.password, credentials.password))
+          ? user
+          : null;
 
         // const hashPassword = await argon2.hash(credentials?.password)
 

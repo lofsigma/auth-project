@@ -27,7 +27,7 @@ export default function Admin() {
   const mutation = api.example.createNewUser.useMutation();
 
   // Create new user.
-  const createUser = async (data) => {
+  const createUser = (data) => {
     mutation.mutate({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -66,7 +66,15 @@ export default function Admin() {
   if (isAdmin) {
     return (
       <div>
-        <div className="mt-8 text-xl">ADMIN</div>
+        <div className="mt-8 mb-8 flex items-center justify-between">
+          <div className="text-medium uppercase">admin</div>
+          <button
+            onClick={signOut}
+            className="w-fit rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
+          >
+            logout
+          </button>
+        </div>
         <Users session={session} setCurrDrag={setCurrDrag} />
         <Roles currDrag={currDrag} setCurrDrag={setCurrDrag} />
         <div className="mt-8 mb-4 text-center">NEW USER</div>
@@ -142,7 +150,7 @@ export default function Admin() {
         <ul className="uppercase">
           <li>send email on new user with username + password</li>
           <li>assign roles using ml magic</li>
-          <li>
+          <li className="line-through">
             actually enforce passwords, need to figure out how to save password
             before hashing.
           </li>

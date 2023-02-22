@@ -67,25 +67,26 @@ export const exampleRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const pass = crypto.randomBytes(8).toString("hex");
       const hashedPass = await argon2.hash(pass);
-      console.log("mutate", pass, hashedPass);
-      return {
-        user: ctx.prisma.user.create({
-          data: {
-            firstName: input.firstName,
-            lastName: input.lastName,
-            birthDate: input.birthDate,
-            userName: input.firstName + input.lastName,
-            password: hashedPass,
-            newHire: input.newHire,
-            ManagerId: input.managerId,
-            personnelArea: input.personnelArea,
-            department: input.department,
-            costCenter: input.costCenter,
-            roles: {
-              connect: input.roles.split(",").map((role) => ({ name: role })),
-            },
+      const user = await ctx.prisma.user.create({
+        data: {
+          firstName: input.firstName,
+          lastName: input.lastName,
+          birthDate: input.birthDate,
+          userName: input.firstName + input.lastName,
+          password: hashedPass,
+          newHire: input.newHire,
+          ManagerId: input.managerId,
+          personnelArea: input.personnelArea,
+          department: input.department,
+          costCenter: input.costCenter,
+          roles: {
+            connect: input.roles.split(",").map((role) => ({ name: role })),
           },
-        }),
+        },
+      });
+      console.log("mutate", pass, hashedPass, user);
+      return {
+        user: user,
         pass: pass,
       };
     }),
