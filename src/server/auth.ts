@@ -12,8 +12,6 @@ import { env } from "../env.mjs";
 import { prisma } from "./db";
 import * as argon2 from "argon2";
 
-
-
 /**
  * Module augmentation for `next-auth` types.
  * Allows us to add custom properties to the `session` object and keep type
@@ -52,15 +50,15 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, account, profile }) {
       if (account) {
-        token.id = account.providerAccountId
+        token.id = account.providerAccountId;
       }
-      return token
-    }
+      return token;
+    },
   },
   adapter: PrismaAdapter(prisma),
   session: {
     // Set to jwt in order to CredentialsProvider works properly
-    strategy: 'jwt'
+    strategy: "jwt",
   },
   providers: [
     // EmailProvider({
@@ -84,7 +82,7 @@ export const authOptions: NextAuthOptions = {
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
         // Add logic here to look up the user from the credentials supplied
@@ -99,24 +97,18 @@ export const authOptions: NextAuthOptions = {
 
         //   // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         // }
-        console.log('authorizing!!!')
-        const user = await prisma.user.findFirst({
+        return await prisma.user.findFirst({
           where: {
-            userName: credentials?.username
+            userName: credentials?.username,
           },
-        })
-        console.log('us', user);
-        return {
-          name: user?.id,
-          id: user?.id
-        }
+        });
 
         // const hashPassword = await argon2.hash(credentials?.password)
 
         // console.log('user', user, hashPassword == user.password);
         // return (await argon2.hash(credentials?.password)) == user.password ? user : null
-      }
-    })
+      },
+    }),
     /**
      * ...add more providers here
      *

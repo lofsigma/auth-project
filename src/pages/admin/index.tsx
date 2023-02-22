@@ -42,6 +42,14 @@ export default function Admin() {
     console.log("new user", mutation.data);
   };
 
+  function generateRandomString() {
+    var array = new Uint32Array(12);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (dec) => ("0" + dec.toString(16)).substr(-2)).join(
+      ""
+    );
+  }
+
   const { data: isAdmin } = api.example.isAdmin.useQuery(
     { id: session?.user.id }, // no input
     { enabled: session?.user !== undefined }
@@ -123,15 +131,24 @@ export default function Admin() {
         <div className="w-50 mb-8 border p-4">
           <div className="">NEW USER</div>
           <div>
-            USERNAME: {mutation.isSuccess ? mutation.data.userName : "loading"}
+            USERNAME:{" "}
+            {mutation.isSuccess ? mutation.data.user.userName : "loading"}
           </div>
           <div>
-            PASSWORD: {mutation.isSuccess ? mutation.data.password : "loading"}
+            PASSWORD: {mutation.isSuccess ? mutation.data.pass : "loading"}
           </div>
         </div>
         <div>MISSING</div>
-        <div>SEND EMAIL ON SUBMIT TO ADMIN WITH USERNAME + PASSWORD</div>
-        <div>make usernames draggable, and associate a db action.</div>
+        <ul className="uppercase">
+          <li>send email on new user with username + password</li>
+          <li>assign roles using ml magic</li>
+          <li>
+            actually enforce passwords, need to figure out how to save password
+            before hashing.
+          </li>
+          <li>set username color based on associated roles</li>
+          <li>webauthn</li>
+        </ul>
       </div>
     );
   } else {
@@ -156,7 +173,7 @@ const Users: React.FC = ({
   return (
     <>
       <div className="mb-4 mt-8 text-center">USERS</div>
-      <table className="w-full leading-10">
+      <table className="w-full uppercase leading-10">
         <thead>
           <tr className="border-b border-gray-300 text-left">
             <th className="font-normal">USERNAME</th>

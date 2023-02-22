@@ -1,56 +1,106 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { api } from "../../utils/api";
+import { useRouter } from "next/router";
+
+import Link from "next/link";
 
 export default function Profile() {
+  const router = useRouter();
   const { data: session } = useSession();
 
-  if (!session) return <div>not signed in</div>;
+  if (!session) return <button onClick={signIn}>SIGN IN</button>;
 
   return (
     <>
-      <button
-        onClick={() => signOut()}
-        className="rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
-      >
-        logout
-      </button>
-      <div>{session.user.email}</div>
-      <UserRoles />
+      <div className="mt-8 mb-8 flex items-center justify-between">
+        <div className="text-medium">PROFILE</div>
+        <button
+          onClick={signOut}
+          className="w-fit rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
+        >
+          logout
+        </button>
+      </div>
+      <User session={session} />
+      {/* <UserRoles /> */}
     </>
   );
 }
 
-const UserRoles: React.FC = () => {
-  const { data: session } = useSession();
-
-  if (!session) return <div></div>;
-
-  const { data: user } = api.example.getUser.useQuery(
+const User: React.FC = ({ session }) => {
+  const {
+    isLoading,
+    isError,
+    data: user,
+    error,
+  } = api.example.getUser.useQuery(
     { id: session.user.id }, // no input
     { enabled: session?.user !== undefined }
   );
 
-  if (!user) return <div></div>;
+  if (isLoading) return <div>...</div>;
 
   return (
     <>
-      {/* <div>{user.email}</div> */}
-      {/* {user.roles.map(({ id, name }) => (
-        <div>
-          {id}: {name}
-        </div>
-      ))} */}
-      <table className="leading-loose">
-        <tr className="border-b border-gray-300 text-left">
-          <th>role</th>
-        </tr>
-        {user.roles.map(({ id, name }) => (
+      <table className="text-left uppercase leading-loose">
+        <tbody>
           <tr>
+            <th>username</th>
+            <td>{user.userName}</td>
+          </tr>
+          <tr>
+            <th>first name</th>
+            <td>{user.firstName}</td>
+          </tr>
+          <tr>
+            <th>last name</th>
+            <td>{user.lastName}</td>
+          </tr>
+          <tr>
+            <th>birth date</th>
             <td>
-              <a href={`/role/${name}`}>{name}</a>
+              {user.birthDate.toLocaleDateString("en-us", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </td>
           </tr>
-        ))}
+          <tr>
+            <th>new hire</th>
+            <td>{user.newHire.toString()}</td>
+          </tr>
+          <tr>
+            <th>manager id</th>
+            <td>{user.managerId}</td>
+          </tr>
+          <tr>
+            <th>personnel area</th>
+            <td>{user.personnelArea}</td>
+          </tr>
+          <tr>
+            <th>department</th>
+            <td>{user.department}</td>
+          </tr>
+          <tr>
+            <th>cost center</th>
+            <td>{user.costcenter}</td>
+          </tr>
+          <tr>
+            <th>roles</th>
+            <td className="flex flex-wrap gap-4">
+              {user.roles.map((r) => (
+                <a
+                  key={r.name}
+                  href={`/role/${r.name}`}
+                  className="underline underline-offset-4"
+                >
+                  {r.name}
+                </a>
+              ))}
+            </td>
+          </tr>
+        </tbody>
       </table>
     </>
   );

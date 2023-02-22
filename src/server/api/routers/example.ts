@@ -4,6 +4,8 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
 import crypto from "crypto";
 
+import * as argon2 from "argon2";
+
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
@@ -62,24 +64,30 @@ export const exampleRouter = createTRPCRouter({
         roles: z.string(),
       })
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.user.create({
-        data: {
-          firstName: input.firstName,
-          lastName: input.lastName,
-          birthDate: input.birthDate,
-          userName: input.firstName + input.lastName,
-          password: crypto.randomBytes(8).toString("hex"),
-          newHire: input.newHire,
-          ManagerId: input.managerId,
-          personnelArea: input.personnelArea,
-          department: input.department,
-          costCenter: input.costCenter,
-          roles: {
-            connect: input.roles.split(",").map((role) => ({ name: role })),
+    .mutation(async ({ ctx, input }) => {
+      const pass = crypto.randomBytes(8).toString("hex");
+      const hashedPass = await argon2.hash(pass);
+      console.log("mutate", pass, hashedPass);
+      return {
+        user: ctx.prisma.user.create({
+          data: {
+            firstName: input.firstName,
+            lastName: input.lastName,
+            birthDate: input.birthDate,
+            userName: input.firstName + input.lastName,
+            password: hashedPass,
+            newHire: input.newHire,
+            ManagerId: input.managerId,
+            personnelArea: input.personnelArea,
+            department: input.department,
+            costCenter: input.costCenter,
+            roles: {
+              connect: input.roles.split(",").map((role) => ({ name: role })),
+            },
           },
-        },
-      });
+        }),
+        pass: pass,
+      };
     }),
   addRole: protectedProcedure
     .input(z.object({ id: z.string(), role: z.string() }))
