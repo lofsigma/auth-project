@@ -8,7 +8,17 @@ import { api } from "../utils/api";
 const Home: NextPage = () => {
   return (
     <>
-      <div className="uppercase">identityflow</div>
+      <div className="mt-8 mb-8 flex items-center justify-between">
+        <div className="text-medium uppercase">identifyflow</div>
+        <button
+          onClick={() => signOut()}
+          className="w-fit rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
+        >
+          logout
+        </button>
+      </div>
     </>
   );
 };
+
+export default Home;
