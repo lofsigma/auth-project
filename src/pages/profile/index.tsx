@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 export default function Profile() {
-  const router = useRouter();
   const { data: session } = useSession();
 
   if (!session) return <button onClick={signIn}>SIGN IN</button>;
