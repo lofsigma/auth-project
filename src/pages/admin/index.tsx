@@ -27,7 +27,7 @@ export default function Admin() {
   const mutation = api.example.createNewUser.useMutation();
 
   // Create new user.
-  const createUser = (data) => {
+  const createUser = (data) =>
     mutation.mutate({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -39,16 +39,6 @@ export default function Admin() {
       costCenter: data.costCenter,
       roles: data.roles,
     });
-    console.log("new user", mutation.data);
-  };
-
-  function generateRandomString() {
-    var array = new Uint32Array(12);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, (dec) => ("0" + dec.toString(16)).substr(-2)).join(
-      ""
-    );
-  }
 
   const { data: isAdmin } = api.example.isAdmin.useQuery(
     { id: session?.user.id }, // no input
@@ -56,112 +46,110 @@ export default function Admin() {
   );
 
   if (status === "loading") {
-    return <p>Loading...</p>;
+    return <p>...</p>;
   }
 
   if (status === "unauthenticated") {
     return <p>Access Denied</p>;
   }
 
-  if (isAdmin) {
-    return (
-      <div>
-        <div className="mt-8 mb-8 flex items-center justify-between">
-          <div className="text-medium uppercase">admin</div>
-          <button
-            onClick={signOut}
-            className="w-fit rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
-          >
-            logout
-          </button>
-        </div>
-        <Users session={session} setCurrDrag={setCurrDrag} />
-        <Roles currDrag={currDrag} setCurrDrag={setCurrDrag} />
-        <div className="mt-8 mb-4 text-center">NEW USER</div>
-        <form onSubmit={handleSubmit(createUser)} className="flex flex-col">
-          <label>FIRST NAME</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="FIRST NAME"
-            {...register("firstName")}
-          />
-          <label>LAST NAME</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="LAST NAME"
-            {...register("lastName")}
-          />
-          <label>BIRTH DATE</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="BIRTH DATE"
-            {...register("birthDate")}
-          />
-          <label>NEW HIRE</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="NEW HIRE"
-            {...register("newHire")}
-          />
-          <label>MANAGER ID</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="MANAGER ID"
-            {...register("managerId")}
-          />
-          <label>PERSONNEL AREA</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="PERSONNEL AREA"
-            {...register("personnelArea")}
-          />
-          <label>DEPARTMENT</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="DEPARTMENT"
-            {...register("department")}
-          />
-          <label>COST CENTER</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="COST CENTER"
-            {...register("costCenter")}
-          />
-          <label>ROLES</label>
-          <input
-            className="mt-2  mb-4 bg-gray-100 px-4 py-2"
-            placeholder="ROLES"
-            {...register("roles")}
-          />
-          <button className="mb-4 bg-orange-400 px-4 py-2">SUBMIT</button>
-        </form>
+  if (!Admin) return <div>...</div>;
 
-        <div className="w-50 mb-8 border p-4">
-          <div className="">NEW USER</div>
-          <div>
-            USERNAME:{" "}
-            {mutation.isSuccess ? mutation.data.user.userName : "loading"}
-          </div>
-          <div>
-            PASSWORD: {mutation.isSuccess ? mutation.data.pass : "loading"}
-          </div>
-        </div>
-        <div>MISSING</div>
-        <ul className="uppercase">
-          <li>send email on new user with username + password</li>
-          <li>assign roles using ml magic</li>
-          <li className="line-through">
-            actually enforce passwords, need to figure out how to save password
-            before hashing.
-          </li>
-          <li>set username color based on associated roles</li>
-          <li>webauthn</li>
-        </ul>
+  return (
+    <div>
+      <div className="mt-8 mb-8 flex items-center justify-between">
+        <div className="text-medium uppercase">admin</div>
+        <button
+          onClick={signOut}
+          className="w-fit rounded-md bg-gray-100 px-4 py-2 hover:bg-black hover:text-white"
+        >
+          logout
+        </button>
       </div>
-    );
-  } else {
-    return <div>you are not an admin {JSON.stringify(isAdmin)}</div>;
-  }
+      <Users session={session} setCurrDrag={setCurrDrag} />
+      <Roles currDrag={currDrag} setCurrDrag={setCurrDrag} />
+      <div className="mt-8 mb-4 text-center">NEW USER</div>
+      <form onSubmit={handleSubmit(createUser)} className="flex flex-col">
+        <label>FIRST NAME</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="FIRST NAME"
+          {...register("firstName")}
+        />
+        <label>LAST NAME</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="LAST NAME"
+          {...register("lastName")}
+        />
+        <label>BIRTH DATE</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="BIRTH DATE"
+          {...register("birthDate")}
+        />
+        <label>NEW HIRE</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="NEW HIRE"
+          {...register("newHire")}
+        />
+        <label>MANAGER ID</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="MANAGER ID"
+          {...register("managerId")}
+        />
+        <label>PERSONNEL AREA</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="PERSONNEL AREA"
+          {...register("personnelArea")}
+        />
+        <label>DEPARTMENT</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="DEPARTMENT"
+          {...register("department")}
+        />
+        <label>COST CENTER</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="COST CENTER"
+          {...register("costCenter")}
+        />
+        <label>ROLES</label>
+        <input
+          className="mt-2  mb-4 bg-gray-100 px-4 py-2"
+          placeholder="ROLES"
+          {...register("roles")}
+        />
+        <button className="mb-4 bg-orange-400 px-4 py-2">SUBMIT</button>
+      </form>
+
+      <div className="w-50 mb-8 border p-4">
+        <div className="">NEW USER</div>
+        <div>
+          USERNAME:{" "}
+          {mutation.isSuccess ? mutation.data.user.userName : "loading"}
+        </div>
+        <div>
+          PASSWORD: {mutation.isSuccess ? mutation.data.pass : "loading"}
+        </div>
+      </div>
+      <div>MISSING</div>
+      <ul className="uppercase">
+        <li>send email on new user with username + password</li>
+        <li>assign roles using ml magic</li>
+        <li className="line-through">
+          actually enforce passwords, need to figure out how to save password
+          before hashing.
+        </li>
+        <li>set username color based on associated roles</li>
+        <li>webauthn</li>
+      </ul>
+    </div>
+  );
 }
 
 const Users: React.FC = ({
