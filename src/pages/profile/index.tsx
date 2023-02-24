@@ -37,6 +37,24 @@ const User: React.FC = ({ session }) => {
     { enabled: session?.user !== undefined }
   );
 
+  // const mutationPreRegister = api.example.preRegister.useMutation();
+
+  // const handlePreRegister = () => {
+  //   mutationPreRegister.mutate({
+  //     id: session.user.id,
+  //   });
+  // };
+
+  const registerWebAuthn = () => {
+    // get challenge from server.
+    const { data: challenge } = api.example.getUser.useQuery(
+      { id: session.user.id },
+      { enabled: session?.user !== undefined }
+    );
+
+    console.log("challenge", challenge);
+  };
+
   if (isLoading) return <div>...</div>;
 
   return (
@@ -101,6 +119,15 @@ const User: React.FC = ({ session }) => {
           </tr>
         </tbody>
       </table>
+      {/* <button onClick={handlePreRegister} className="mt-8 py-2 px-4">
+        register
+      </button> */}
+      {/* <button onClick={registerWebAuthn} className="mt-8 py-2 px-4 uppercase">
+        webauthn
+      </button> */}
+      {/* <div>
+        {mutationPreRegister.data && JSON.stringify(mutationPreRegister.data)}
+      </div> */}
     </>
   );
 };

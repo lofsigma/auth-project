@@ -147,6 +147,8 @@ export default function Admin() {
         </li>
         <li>set username color based on associated roles</li>
         <li>webauthn</li>
+        <li>encrypt data at rest.</li>
+        <li>fix mobile</li>
       </ul>
     </div>
   );
@@ -275,7 +277,7 @@ const Roles: React.FC = ({ currDrag, setCurrDrag }) => {
               {users.map((user) => (
                 <div
                   key={name + user.userName}
-                  className={`w-fit  cursor-pointer px-2 py-1 uppercase ${colors2[i]}`}
+                  className={`my-2  w-fit cursor-pointer px-2 py-1 uppercase ${colors2[i]}`}
                   draggable={true}
                   onDragStart={(event) => {
                     setCurrDrag(user.id);

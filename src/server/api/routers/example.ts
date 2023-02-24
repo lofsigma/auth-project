@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} from "@simplewebauthn/server";
+
 import crypto from "crypto";
 
 import * as argon2 from "argon2";
@@ -117,6 +122,105 @@ export const exampleRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  preRegister: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      // Get user.
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          id: input.id,
+        },
+      });
+
+      // Get all user credentials.
+      const credentials = await ctx.prisma.credential.findMany({
+        where: {
+          userId: input.id,
+        },
+      });
+
+      // Generate registrationOptions.
+      const options = generateRegistrationOptions({
+        rpID: process.env.APP_DOMAIN,
+        rpName: process.env.APP_NAME,
+        userID: user.userName,
+        userName: user?.userName,
+        attestationType: "none",
+        authenticatorSelection: {
+          userVerification: "preferred",
+        },
+        excludeCredentials: credentials.map((c) => ({
+          id: c.id,
+          type: "public-key",
+          transports: c.transports,
+        })),
+      });
+
+      // Insert challenge from registrationOptions.
+      const challenge = await ctx.prisma.challenge.upsert({
+        where: {
+          userId: input.id,
+        },
+        update: {
+          challenge: options.challenge,
+        },
+        create: {
+          userId: input.id,
+          challenge: options.challenge,
+        },
+      });
+
+      return options;
+    }),
+  register: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        credential: z.object({
+          id: z.string(),
+          rawId: z.string(),
+          authenticatorAttachment: z.string(),
+          response: z.object({
+            attestationObject: z.string(),
+            clientDataJSON: z.string(),
+            transports: z.any(),
+          }),
+          type: z.string(),
+        }),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // get challenge that corresponds to user.
+      const challenge = await ctx.prisma.challenge.findFirst({
+        where: {
+          userId: input.id,
+        },
+      });
+
+      console.log("challenge", challenge, credential);
+
+      const { verified, registrationInfo: info } =
+        await verifyRegistrationResponse({
+          response: input.credential,
+          expectedRPID: process.env.APP_DOMAIN,
+          expectedOrigin: process.env.ORIGIN,
+          expectedChallenge: challenge,
+        });
+
+      console.log("verified ", verified, "info", info);
+
+      // add credential to db.
+      const credential = await ctx.prisma.credential.create({
+        data: {
+          userId: input.id,
+          transports: credential.transports ?? ["internal"],
+          credentialPublicKey: info.credentialPublicKey,
+          counter: info.counter,
+        },
+      });
+
+      console.log("credential", credential);
     }),
   getUser: protectedProcedure
     .input(z.object({ id: z.string() }))
