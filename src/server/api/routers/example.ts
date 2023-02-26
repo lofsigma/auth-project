@@ -24,8 +24,8 @@ const rpID = process.env.VERCEL_URL
   ? "auth-project-mu.vercel.app"
   : "localhost";
 const origin = process.env.VERCEL_URL
-  ? `https://${rpID[0]}`
-  : `http://${rpID[1]}:3000`;
+  ? `https://${rpID}`
+  : `http://${rpID}:3000`;
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
