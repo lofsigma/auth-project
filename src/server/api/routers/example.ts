@@ -308,6 +308,9 @@ export const exampleRouter = createTRPCRouter({
         where: {
           id: input.id,
         },
+        include: {
+          roles: true,
+        },
       });
     }),
   // getRole: protectedProcedure
