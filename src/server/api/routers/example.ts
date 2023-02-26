@@ -219,6 +219,7 @@ export const exampleRouter = createTRPCRouter({
       } catch (error) {
         console.log(error.message);
       }
+      console.log("ver", verification);
       const { registrationInfo } = verification;
       const { credentialPublicKey, credentialID, counter } = registrationInfo;
       // add credential to db.
