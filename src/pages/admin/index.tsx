@@ -146,8 +146,10 @@ export default function Admin() {
           before hashing.
         </li>
         <li>set username color based on associated roles</li>
-        <li>webauthn</li>
-        <li>encrypt data at rest.</li>
+        <li className="line-through">webauthn</li>
+        <li>
+          encrypt data at rest. could be done using webauthn but ALOT of work.
+        </li>
         <li>fix mobile</li>
       </ul>
     </div>

@@ -91,7 +91,7 @@ model Credential {
     user                User     @relation(fields: [userId], references: [id])
     userId              String
     transports          String[]
-    credentialPublicKey String
+    credentialPublicKey Bytes
     counter             Int
 }
 

@@ -21,6 +21,7 @@ specifiers:
   '@use-gesture/react': ^10.2.24
   argon2: ^0.30.3
   autoprefixer: ^10.4.7
+  base64url: ^3.0.1
   bcrypt: ^5.1.0
   eslint: ^8.30.0
   eslint-config-next: 13.1.6
@@ -53,6 +54,7 @@ dependencies:
   '@trpc/server': 10.12.0
   '@use-gesture/react': 10.2.24_react@18.2.0
   argon2: 0.30.3
+  base64url: 3.0.1
   bcrypt: 5.1.0
   next: 13.1.6_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.19.2_phzvn2nhb6zk7o4ds4z4gvqlei
@@ -997,6 +999,11 @@ packages:
 
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+
+  /base64url/3.0.1:
+    resolution: {integrity: sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A==}
+    engines: {node: '>=6.0.0'}
+    dev: false
 
   /bcrypt/5.1.0:
     resolution: {integrity: sha512-RHBS7HI5N5tEnGTmtR/pppX0mmDSBpQ4aCBsj7CEQfYXDcO74A8sIBYcJMuCsis2E81zDxeENYhv66oZwLiA+Q==}

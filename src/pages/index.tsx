@@ -9,11 +9,16 @@ const Home: NextPage = () => {
   const { data: session } = useSession();
   const { data: options } = api.example.preRegister.useQuery(
     { id: session?.user.id }, // no input
-    { enabled: session?.user !== undefined }
+    {
+      enabled: session?.user !== undefined,
+      staleTime: Infinity,
+      cacheTime: Infinity,
+    }
   );
   const mutationRegister = api.example.register.useMutation();
 
   const registerWebauthn = async () => {
+    console.log("options", options);
     // create credential.
     const credential = await startRegistration(options);
     console.log("credential", credential);
@@ -26,7 +31,7 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="mt-8 mb-8 flex items-center justify-between">
-        <div className="text-medium uppercase">identifyflow</div>
+        <div className="text-medium uppercase">identityflow</div>
         <button
           onClick={() => (session ? signOut() : signIn())}
           className=" w-fit rounded-md bg-gray-100 px-4 py-2 uppercase hover:bg-black hover:text-white"

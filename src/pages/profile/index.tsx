@@ -7,6 +7,25 @@ import Link from "next/link";
 export default function Profile() {
   const { data: session } = useSession();
 
+  const { data: deleteCredentials, refetch } =
+    api.example.deleteCredentials.useQuery(
+      undefined, // no input
+      {
+        enabled: false,
+        staleTime: Infinity,
+        cacheTime: Infinity,
+      }
+    );
+
+  const { data: credential, refetch: refetch2 } = api.example.getCred.useQuery(
+    undefined, // no input
+    {
+      enabled: false,
+      staleTime: Infinity,
+      cacheTime: Infinity,
+    }
+  );
+
   if (!session) return <button onClick={signIn}>SIGN IN</button>;
 
   return (
@@ -21,6 +40,11 @@ export default function Profile() {
         </button>
       </div>
       <User session={session} />
+      <button onClick={async () => refetch()}>deleteAuth</button>
+      <button onClick={async () => refetch2()}>getCred</button>
+      <div>
+        {JSON.stringify(credential?.data ? credential.data : "nothing")}
+      </div>
       {/* <UserRoles /> */}
     </>
   );
@@ -45,17 +69,9 @@ const User: React.FC = ({ session }) => {
   //   });
   // };
 
-  const registerWebAuthn = () => {
-    // get challenge from server.
-    const { data: challenge } = api.example.getUser.useQuery(
-      { id: session.user.id },
-      { enabled: session?.user !== undefined }
-    );
-
-    console.log("challenge", challenge);
-  };
-
   if (isLoading) return <div>...</div>;
+
+  if (!user) return <div>...</div>;
 
   return (
     <>
@@ -106,7 +122,7 @@ const User: React.FC = ({ session }) => {
           <tr>
             <th>roles</th>
             <td className="flex flex-wrap gap-4">
-              {user.roles.map((r) => (
+              {user?.roles?.map((r) => (
                 <a
                   key={r.name}
                   href={`/role/${r.name}`}

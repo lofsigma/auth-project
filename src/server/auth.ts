@@ -11,6 +11,13 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "../env.mjs";
 import { prisma } from "./db";
 import * as argon2 from "argon2";
+import base64url from "base64url";
+
+import { verifyAuthenticationResponse } from "@simplewebauthn/server";
+
+const rpName = "IdentityFlow";
+const rpID = "localhost";
+const origin = `http://${rpID}:3000`;
 
 /**
  * Module augmentation for `next-auth` types.
@@ -60,6 +67,9 @@ export const authOptions: NextAuthOptions = {
     // Set to jwt in order to CredentialsProvider works properly
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/auth/signin",
+  },
   providers: [
     // EmailProvider({
     //   server: {
@@ -74,8 +84,100 @@ export const authOptions: NextAuthOptions = {
     //   // maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
     // }),
     CredentialsProvider({
+      id: "webauthn",
+      name: "webauthn",
+      credentials: {
+        username: { label: "Username", type: "text", placeholder: "jsmith" },
+      },
+      async authorize(credentials, req) {
+        if (!credentials) return null;
+
+        const user = await prisma.user.findFirst({
+          where: {
+            userName: credentials.username,
+          },
+        });
+
+        if (!user) return null;
+
+        const challenge = await prisma.challenge.findFirst({
+          where: {
+            userId: user.id,
+          },
+        });
+
+        const {
+          id,
+          rawId,
+          type,
+          clientDataJSON,
+          authenticatorData,
+          signature,
+          userHandle,
+        } = req.body;
+
+        const credential = {
+          id,
+          rawId,
+          type,
+          response: {
+            clientDataJSON,
+            authenticatorData,
+            signature,
+            userHandle,
+          },
+        };
+
+        if (!challenge) return null;
+
+        // get credential
+        const cred = await prisma.credential.findFirst({
+          where: { id: credential.id },
+        });
+
+        let verification;
+        try {
+          verification = await verifyAuthenticationResponse({
+            expectedChallenge: challenge.challenge,
+            expectedOrigin: origin,
+            expectedRPID: rpID,
+            authenticator: {
+              credentialPublicKey: cred.credentialPublicKey,
+              credentialID: base64url.toBuffer(cred.id),
+              counter: cred.counter,
+            },
+            response: credential as any,
+          });
+
+          console.log(verification);
+        } catch (error) {
+          console.log(error.message);
+        }
+        console.log(verification);
+        const { verified } = verification;
+
+        const { authenticationInfo } = verification;
+        const { newCounter } = authenticationInfo;
+
+        await prisma.credential.update({
+          where: {
+            id: base64url(authenticationInfo.credentialID),
+          },
+          data: {
+            counter: newCounter,
+          },
+        });
+
+        console.log("verified", verified);
+        console.log("user", user);
+
+        return verified ? user : null;
+      },
+    }),
+    CredentialsProvider({
       // The name to display on the sign in form (e.g. "Sign in with...")
-      name: "Credentials",
+      id: "password",
+      name: "password",
       // `credentials` is used to generate a form on the sign in page.
       // You can specify which fields should be submitted, by adding keys to the `credentials` object.
       // e.g. domain, username, password, 2FA token, etc.
@@ -97,6 +199,7 @@ export const authOptions: NextAuthOptions = {
 
         //   // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         // }
+        console.log("right place", credentials);
 
         if (!credentials) return null;
 
@@ -108,6 +211,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
+        // console.log("pass", typeof credentials.password);
         return (await argon2.verify(user.password, credentials.password))
           ? user
           : null;
