@@ -20,8 +20,8 @@ import crypto from "crypto";
 import * as argon2 from "argon2";
 
 const rpName = "IdentityFlow";
-const rpID = "auth-project-mu.vercel.app";
-const origin = `https://${rpID}`;
+const rpID = ["auth-project-mu.vercel.app", "localhost"];
+const origin = [`https://${rpID[0]}`, `http://${rpID[1]}:3000`];
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure

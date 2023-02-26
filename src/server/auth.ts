@@ -16,8 +16,8 @@ import base64url from "base64url";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
 const rpName = "IdentityFlow";
-const rpID = "auth-project-mu.vercel.app";
-const origin = `https://${rpID}`;
+const rpID = ["auth-project-mu.vercel.app", "localhost"];
+const origin = [`https://${rpID[0]}`, `http://${rpID[1]}:3000`];
 
 /**
  * Module augmentation for `next-auth` types.

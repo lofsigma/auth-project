@@ -27,6 +27,11 @@ export default function SignIn() {
         authenticatorData: credential.response.authenticatorData,
         signature: credential.response.signature,
         userHandle: credential.response.userHandle,
+        callbackUrl: `${
+          process.env.VERCEL_URL
+            ? process.env.VERCEL_URL
+            : "http://localhost:3000"
+        }/profile`,
       });
     };
 
@@ -62,7 +67,15 @@ export default function SignIn() {
   };
 
   const handlePassword = async () => {
-    signIn("password", { username: username2, password: password });
+    signIn("password", {
+      username: username2,
+      password: password,
+      callbackUrl: `${
+        process.env.VERCEL_URL
+          ? process.env.VERCEL_URL
+          : "http://localhost:3000"
+      }/profile`,
+    });
   };
   return (
     <>
